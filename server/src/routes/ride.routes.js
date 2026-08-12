@@ -1,26 +1,3 @@
-// import express from "express";
-// import { authenticate, authorize } from "../middleware/auth.middleware.js";
-// import {
-//   createRide,
-//   getAvailableRides,
-//   acceptRide,
-//   updateRideStatus,
-//   getMyRides,
-//   getRideDetails,
-//   cancelRide
-// } from "../controllers/ride.controller.js";
-
-// const router = express.Router();
-
-// router.post("/create-ride", authenticate, authorize("CUSTOMER"), createRide);
-// router.get("/available", authenticate, authorize("DRIVER"), getAvailableRides);
-// router.post("/:rideId/accept", authenticate, authorize("DRIVER"), acceptRide);
-// router.post("/:id/cancel", authenticate, authorize("CUSTOMER"), cancelRide);
-// router.patch("/:rideId/status", authenticate, authorize("DRIVER"), updateRideStatus);
-// router.get("/my", authenticate, authorize("CUSTOMER"), getMyRides);
-// router.get("/:id", authenticate, authorize("CUSTOMER"), getRideDetails);
-
-// export default router;
 import express from "express";
 
 import {
