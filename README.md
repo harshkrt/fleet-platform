@@ -285,8 +285,4 @@ flow solid:
 
 ## AI tool usage
 
-_This section should be filled in by you before submitting, in your own
-words — the assignment specifically asks the candidate to disclose which
-tools were used and where, and to be able to explain and modify any of
-this code live. Since it's a first-person disclosure about your own
-process, it isn't something to have written for you._
+_Used AI tools for writing tests, building frontend partially and debugging._
