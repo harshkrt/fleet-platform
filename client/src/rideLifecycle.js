@@ -1,3 +1,4 @@
+//for the driver
 export const NEXT_STATUS = {
   REQUESTED: "ACCEPTED",
   ACCEPTED: "DRIVER_ARRIVING",
@@ -9,7 +10,7 @@ export const STATUS_LABEL = {
   REQUESTED: "Requested",
   ACCEPTED: "Accepted",
   DRIVER_ARRIVING: "Driver arriving",
-  STARTED: "In progress",
+  STARTED: "Started",
   COMPLETED: "Completed",
   CANCELLED: "Cancelled",
 };
@@ -24,4 +25,6 @@ export const STATUS_COLOR = {
 };
 
 export const isCancellable = (status) =>
-  status === "REQUESTED" || status === "ACCEPTED" || status === "DRIVER_ARRIVING";
+  status === "REQUESTED" ||
+  status === "ACCEPTED" ||
+  status === "DRIVER_ARRIVING";

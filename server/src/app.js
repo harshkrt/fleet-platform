@@ -3,6 +3,8 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
 import rideRoutes from "./routes/ride.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import { apiLimiter } from "./middleware/rateLimiter.js";
+import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 
@@ -14,13 +16,13 @@ app.get("/", (req, res) => {
     message: "Fleet Booking API is running",
   });
 });
+
+app.use("/api", apiLimiter);
 app.use("/api/auth", authRoutes);
 app.use("/api/rides", rideRoutes);
 app.use("/api/admin", adminRoutes);
-app.use((req, res) => {
-  res.status(404).json({
-    message: `Route not found: ${req.method} ${req.originalUrl}`,
-  });
-});
+
+app.use(notFound);
+app.use(errorHandler);
 
 export default app;

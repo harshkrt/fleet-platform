@@ -45,13 +45,15 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     loadMetrics();
     loadRides(emptyFilters);
-  }, [loadMetrics, loadRides]);
+  }, [loadMetrics, loadRides]); //without useCallback fn would be recreated on every render
 
+  //apply filter button logic
   const applyFilters = (e) => {
     e.preventDefault();
     loadRides(filters);
   };
 
+  //clear filter button logic
   const clearFilters = () => {
     setFilters(emptyFilters);
     loadRides(emptyFilters);
@@ -111,12 +113,10 @@ export default function AdminDashboardPage() {
           className="input"
         />
         <div className="col-span-2 flex gap-2 sm:col-span-4">
-          <button
-            type="submit"
-            className="rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-800"
-          >
+          <button type="submit" className="rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-800">
             Apply filters
           </button>
+
           <button
             type="button"
             onClick={clearFilters}
@@ -167,6 +167,8 @@ export default function AdminDashboardPage() {
           </div>
         )}
       </div>
+
+      
     </div>
   );
 }

@@ -61,7 +61,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none"
-              placeholder="••••••••"
+              placeholder="********"
             />
           </div>
 
@@ -83,12 +83,12 @@ export default function LoginPage() {
           </Link>
         </p>
 
-        <div className="mt-6 rounded-md bg-gray-50 p-3 text-xs text-gray-500">
-          <p className="font-medium text-gray-600">Test accounts (password: password123)</p>
+        {/* <div className="mt-6 rounded-md bg-gray-50 p-3 text-xs text-gray-500">
+          <p className="font-medium text-gray-600">Test accounts</p>
           <p>customer@example.com</p>
           <p>driver@example.com</p>
           <p>admin@example.com</p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

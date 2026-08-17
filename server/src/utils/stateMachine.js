@@ -1,4 +1,3 @@
-// this is the core logic of two drivers can't accept the same ride request at the same time
 
 const ALLOWED_TRANSITIONS = {
     'REQUESTED': ['ACCEPTED', 'CANCELLED'],

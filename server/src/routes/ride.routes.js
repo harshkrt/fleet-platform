@@ -16,16 +16,11 @@ const router = express.Router();
 
 router.post("/", authenticate, authorize("CUSTOMER"), createRide);
 router.get("/my", authenticate, authorize("CUSTOMER"), getMyRides);
-router.get("/assigned", authenticate, authorize("DRIVER"), getAssignedRides);
 router.get("/available", authenticate, authorize("DRIVER"), getAvailableRides);
+router.get("/assigned", authenticate, authorize("DRIVER"), getAssignedRides);
 router.get("/:id", authenticate, authorize("CUSTOMER"), getRideDetails);
-router.post("/:id/accept", authenticate, authorize("DRIVER"), acceptRide);
-router.patch(
-  "/:id/status",
-  authenticate,
-  authorize("DRIVER"),
-  updateRideStatus,
-);
-
 router.post("/:id/cancel", authenticate, authorize("CUSTOMER"), cancelRide);
+router.post("/:id/accept", authenticate, authorize("DRIVER"), acceptRide);
+router.patch("/:id/status", authenticate, authorize("DRIVER"), updateRideStatus);
+
 export default router;

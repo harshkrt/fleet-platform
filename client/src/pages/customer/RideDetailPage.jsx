@@ -6,12 +6,13 @@ import StatusBadge from "../../components/StatusBadge";
 import { LoadingState, ErrorState } from "../../components/AsyncState";
 import { isCancellable } from "../../rideLifecycle";
 
+//polls every 5 sec
 const POLL_INTERVAL_MS = 5000;
 
 export default function RideDetailPage() {
   const { id } = useParams();
   const [ride, setRide] = useState(null);
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState([]);//valid state
   const [error, setError] = useState("");
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState("");
@@ -25,17 +26,17 @@ export default function RideDetailPage() {
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Could not load this ride.");
     }
-  }, [id]);
+  }, [id]); //load depends on id
 
   useEffect(() => {
     load();
     const interval = setInterval(load, POLL_INTERVAL_MS);
-    return () => clearInterval(interval);
+    return () => clearInterval(interval); //unmounts and stops polling
   }, [load]);
 
   const handleCancel = async () => {
     if (cancelling) return;
-    setCancelling(true);
+    setCancelling(true);//duplicate cancellation stops
     setCancelError("");
     try {
       await cancelRide(id);

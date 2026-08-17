@@ -264,8 +264,8 @@ describe("Driver rides", () => {
       .post("/api/rides")
       .set("Authorization", `Bearer ${customerLogin.body.token}`)
       .send({
-        pickupLocation: "A",
-        dropLocation: "B",
+        pickupLocation: "A Block",
+        dropLocation: "B Block",
         estimatedDistance: 10,
         requestedTime: "2026-08-11T18:30:00.000Z",
       });
@@ -273,7 +273,6 @@ describe("Driver rides", () => {
     const response = await request(app)
       .get("/api/rides/available")
       .set("Authorization", `Bearer ${driverLogin.body.token}`);
-
     expect(response.status).toBe(200);
     expect(response.body.rides).toHaveLength(1);
     expect(response.body.rides[0].status).toBe("REQUESTED");

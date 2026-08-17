@@ -17,9 +17,9 @@ const emptyForm = {
 export default function BookRidePage() {
   const navigate = useNavigate();
   const [form, setForm] = useState(emptyForm);
-  const [errors, setErrors] = useState({});
-  const [submitError, setSubmitError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});//frontend error
+  const [submitError, setSubmitError] = useState("");//backend error
+  const [submitting, setSubmitting] = useState(false);//duplicate submission
 
   const distance = Number(form.estimatedDistance);
   const estimatedFare = distance > 0 ? BASE_FARE + distance * FARE_PER_KM : null;
@@ -28,18 +28,24 @@ export default function BookRidePage() {
 
   const validate = () => {
     const next = {};
-    if (!form.pickupLocation.trim()) next.pickupLocation = "Pickup location is required.";
-    if (!form.dropLocation.trim()) next.dropLocation = "Destination is required.";
-    if (!form.requestedTime) next.requestedTime = "Pickup date and time are required.";
+
+    //frontend validation
+    if (!form.pickupLocation.trim()) next.pickupLocation = "Pickup location is required";
+    if (!form.dropLocation.trim()) next.dropLocation = "Destination is required";
+    if (!form.requestedTime) next.requestedTime = "Pickup date and time are required";
     if (!form.estimatedDistance || distance <= 0)
-      next.estimatedDistance = "Enter a distance greater than 0.";
+      next.estimatedDistance = "Enter a distance greater than 0";
     setErrors(next);
     return Object.keys(next).length === 0;
-  };
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    //prevent double submission
     if (submitting) return;
+
+    //if validation fails we stop
     if (!validate()) return;
 
     setSubmitError("");

@@ -31,6 +31,7 @@ export default function AssignedRidesPage() {
 
     setUpdatingId(ride._id);
     setUpdateError("");
+
     try {
       await updateRideStatus(ride._id, nextStatus);
       await load();

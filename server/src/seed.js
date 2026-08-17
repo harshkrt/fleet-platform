@@ -8,6 +8,7 @@ import User from "./models/user.model.js";
 const USERS = [
   { name: "Carol Customer", email: "customer@example.com", role: "CUSTOMER" },
   { name: "Dave Driver", email: "driver@example.com", role: "DRIVER" },
+    { name: "DriverX", email: "driverx@example.com", role: "DRIVER" },
   { name: "Alice Admin", email: "admin@example.com", role: "ADMIN" },
 ];
 

@@ -23,6 +23,8 @@ the frontend never has to be trusted for authorization.
 | Database | MongoDB (Mongoose) |
 | Auth | JWT (`jsonwebtoken`), passwords hashed with `bcryptjs` |
 | Validation | manual request-shape checks in controllers |
+| Error handling | centralized — see [Error handling](#error-handling) below |
+| Rate limiting | `express-rate-limit` on all `/api` routes, tighter limit on auth |
 | Testing | Jest + Supertest (backend, integration-style, against a real test DB) |
 
 ## Repository layout
@@ -188,7 +190,7 @@ Body: `{ status }`. Only the assigned driver may update; only transitions
 allowed by the state machine succeed.
 - `200` → `{ message, ride }`
 - `400` → transition not allowed from the ride's current status
-- `403` → caller is not the assigned driver (body is `{ msg }`, not `{ message }` — see note below)
+- `403` → caller is not the assigned driver
 - `404` → no such ride
 
 **`POST /api/rides/:id/cancel`** — role: `CUSTOMER`
@@ -214,12 +216,55 @@ Query params (all optional): `status`, `driver` (driver's user id),
 `createdAt` within that day).
 - `200` → `{ count, rides }`
 
-### Common error shape
+## Error handling
 
-Errors are `{ message: "..." }`. One handler (the "not your assigned ride"
-check on `PATCH /:id/status`) returns `{ msg: "..." }` instead — a small
-inconsistency called out above rather than papered over. Unhandled
-exceptions return `500`.
+There's a single centralized error handler (`src/middleware/errorHandler.js`),
+mounted last in `app.js`, and no controller contains a `try/catch` — this
+project runs on Express 5, which automatically forwards both thrown errors
+and rejected promises from route handlers to error-handling middleware, so
+controllers just `throw` and return early on the happy path.
+
+A small `AppError` class (`message`, `statusCode`) is thrown for expected,
+business-logic errors ("ride not found," "wrong role," "invalid transition,"
+etc.). The centralized handler also recognizes and translates common
+lower-level errors it didn't throw itself, so they don't leak as raw `500`s:
+
+| Error | Mapped to |
+|---|---|
+| Mongoose `CastError` (e.g. a malformed ride id in a URL) | `400` |
+| Mongoose `ValidationError` | `400` |
+| MongoDB duplicate-key error (code `11000`) | `409` |
+| `JsonWebTokenError` / `TokenExpiredError` | `401` |
+| anything else | `500` (and logged via `console.error`) |
+
+Every error response is `{ message: "..." }` — this is now consistent across
+the whole API (previously one handler returned `{ msg }` instead; that's
+been fixed as part of this cleanup).
+
+Unknown routes hit a `notFound` middleware (mounted just before the error
+handler) that throws a `404` `AppError`, so even "route doesn't exist" flows
+through the same single path as every other error.
+
+## Rate limiting
+
+`express-rate-limit` is applied in two layers (`src/middleware/rateLimiter.js`):
+
+- **All `/api/*` routes** — 300 requests / 15 minutes per IP, a broad safety
+  net against runaway clients.
+- **`/api/auth/login` and `/api/auth/register`** — a tighter 10 requests /
+  15 minutes per IP, since these are the realistic brute-force / credential-
+  stuffing targets. A request over the limit gets `429` with
+  `{ message: "Too many attempts, please try again later" }`.
+
+Both limiters are skipped when `NODE_ENV === "test"` (Jest sets this
+automatically), since the test suite legitimately fires many requests in
+quick succession against a real server instance and isn't the traffic
+pattern this is meant to catch.
+
+Note: the limiter's default store is in-memory, so counts reset on server
+restart and aren't shared across multiple server instances — fine for a
+single-instance deployment, but would need a shared store (e.g. Redis) to
+stay effective behind a load balancer.
 
 ## Architecture
 
@@ -254,8 +299,9 @@ payment, or notification integration in this submission.
 
 - No refresh tokens — JWTs are valid for 7 days with no revocation
   mechanism; logging out just discards the token client-side.
-- No rate limiting on `/api/auth/login`, so it's not hardened against
-  brute-force attempts.
+- Rate limiting uses an in-memory store (see [Rate limiting](#rate-limiting)
+  above) — resets on restart and isn't shared across instances, so it would
+  need a shared store to stay effective behind a load balancer.
 - No pagination on `GET /api/admin/rides` or `GET /api/rides/available` —
   fine at this scale, would need cursor/offset pagination for a large
   fleet.
@@ -263,8 +309,9 @@ payment, or notification integration in this submission.
   `findOneAndUpdate` (only one caller can match the `status: "REQUESTED"`
   filter) rather than a queue or lock — sufficient for this scale, but
   worth revisiting under heavier write contention.
-- No structured logging or monitoring/alerting — errors are only
-  `console.error`'d.
+- No structured logging or monitoring/alerting — the centralized error
+  handler only `console.error`'s `5xx`s, there's no log aggregation or
+  alerting on top of that.
 
 ## Features not completed
 
